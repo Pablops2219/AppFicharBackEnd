@@ -1,9 +1,16 @@
 package com.somllar.fichar.model;
 
+import com.somllar.fichar.security.persistance.entity.Usuario;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Setter
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "fichajes")
 public class Fichaje {
@@ -13,8 +20,8 @@ public class Fichaje {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "trabajador_id", nullable = false)
-    private Empleado empleado;
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 
     @ManyToOne
     @JoinColumn(name = "casa_id", nullable = false)
@@ -25,45 +32,4 @@ public class Fichaje {
     @Enumerated(EnumType.STRING)
     private TipoFichaje tipo;
 
-    // Getters y setters
-
-    public Empleado getEmpleado() {
-        return empleado;
-    }
-
-    public void setEmpleado(Empleado empleado) {
-        this.empleado = empleado;
-    }
-
-    public Casa getCasa() {
-        return casa;
-    }
-
-    public void setCasa(Casa casa) {
-        this.casa = casa;
-    }
-
-    public LocalDateTime getHora() {
-        return hora;
-    }
-
-    public void setHora(LocalDateTime hora) {
-        this.hora = hora;
-    }
-
-    public TipoFichaje getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(TipoFichaje tipo) {
-        this.tipo = tipo;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

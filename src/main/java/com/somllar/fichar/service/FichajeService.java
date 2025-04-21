@@ -11,12 +11,11 @@ public interface FichajeService {
     List<Fichaje> getAllFichajes();
     Fichaje getFichajeById(Long id);
 
-    List<Fichaje> getFichajesByEmpleado(Long empleadoId);
+    List<Fichaje> getFichajesByUsuario(Long usuarioId);
     List<Fichaje> getFichajesByCasa(Long casaId);
     List<Fichaje> getFichajesByTipo(TipoFichaje tipo);
 
     List<Fichaje> getFichajesByRangoFechas(LocalDateTime inicio, LocalDateTime fin);
 
-    List<Fichaje> getFichajesByEmailUID(String emailUID);
 
 }

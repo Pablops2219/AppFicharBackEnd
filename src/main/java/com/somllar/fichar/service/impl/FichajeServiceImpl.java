@@ -36,8 +36,8 @@ public class FichajeServiceImpl implements FichajeService {
     }
 
     @Override
-    public List<Fichaje> getFichajesByEmpleado(Long empleadoId) {
-        return fichajeRepository.findByEmpleadoId(empleadoId);
+    public List<Fichaje> getFichajesByUsuario(Long usuarioId) {
+        return fichajeRepository.findByUsuarioId(usuarioId);
     }
 
     @Override
@@ -53,9 +53,5 @@ public class FichajeServiceImpl implements FichajeService {
     @Override
     public List<Fichaje> getFichajesByRangoFechas(LocalDateTime inicio, LocalDateTime fin) {
         return fichajeRepository.findByHoraBetween(inicio, fin);
-    }
-    @Override
-    public List<Fichaje> getFichajesByEmailUID(String emailUID) {
-        return fichajeRepository.findByEmpleadoEmailUID(emailUID);
     }
 }

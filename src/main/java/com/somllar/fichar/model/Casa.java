@@ -1,7 +1,13 @@
 package com.somllar.fichar.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
+@Setter
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "casas")
 public class Casa {
@@ -12,21 +18,4 @@ public class Casa {
     @Column(name = "nombre",nullable = false)
     private String nombre;
 
-    public Casa() {}
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
 }

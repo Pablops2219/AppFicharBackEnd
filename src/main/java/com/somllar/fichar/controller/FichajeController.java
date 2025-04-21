@@ -1,10 +1,9 @@
 package com.somllar.fichar.controller;
 
-import com.somllar.fichar.model.Empleado;
 import com.somllar.fichar.model.Fichaje;
 import com.somllar.fichar.model.TipoFichaje;
-import com.somllar.fichar.service.EmpleadoService;
 import com.somllar.fichar.service.FichajeService;
+import com.somllar.fichar.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,7 +23,7 @@ public class FichajeController {
     @Autowired
     private FichajeService fichajeService;
     @Autowired
-    private EmpleadoService empleadoService;
+    private UsuarioService usuarioService;
 
     @Operation(summary = "Crear un nuevo fichaje.\nSi no se proporciona una hora, se asigna la hora actual automáticamente en el servicio.")
     @ApiResponses(value = {
@@ -49,11 +48,11 @@ public class FichajeController {
         return fichajeService.getFichajeById(id);
     }
 
-    @Operation(summary = "Obtener fichajes por ID de empleado")
-    @GetMapping("/empleado/{empleadoId}")
-    public List<Fichaje> getFichajesByEmpleado(
-            @Parameter(description = "ID del empleado") @PathVariable Long empleadoId) {
-        return fichajeService.getFichajesByEmpleado(empleadoId);
+    @Operation(summary = "Obtener fichajes por ID de usuario")
+    @GetMapping("/usuario/{usuarioId}")
+    public List<Fichaje> getFichajesByUsuario(
+            @Parameter(description = "ID del usuario") @PathVariable Long usuarioId) {
+        return fichajeService.getFichajesByUsuario(usuarioId);
     }
 
     @Operation(summary = "Obtener fichajes por ID de casa")
@@ -84,23 +83,6 @@ public class FichajeController {
             @Parameter(description = "Fecha de fin en formato ISO 8601")
             @RequestParam("fin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
         return fichajeService.getFichajesByRangoFechas(inicio, fin);
-    }
-
-    @Operation(summary = "Obtener fichajes por emailUID del empleado")
-    @GetMapping("/emailUID/{emailUID}")
-    public List<Fichaje> getFichajesByEmailUID(
-            @Parameter(description = "UID de la cuenta del empleado a buscar") @PathVariable("emailUID") String emailUID) {
-
-        // Obtener el empleado utilizando el emailUID
-        Empleado empleado = empleadoService.getEmpleadoByEmailUID(emailUID);
-
-        // Si el empleado no se encuentra, retornamos una lista vacía
-        if (empleado == null) {
-            return List.of(); // Devuelve una lista vacía si no se encuentra el empleado
-        }
-
-        // Obtener los fichajes del empleado
-        return fichajeService.getFichajesByEmpleado(empleado.getId());
     }
 
 }

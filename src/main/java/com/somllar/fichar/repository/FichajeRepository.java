@@ -8,11 +8,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface FichajeRepository extends JpaRepository<Fichaje, Long> {
-    List<Fichaje> findByEmpleadoId(Long empleadoId);
+    List<Fichaje> findByUsuarioId(Long usuarioId);
     List<Fichaje> findByCasaId(Long casaId);
     List<Fichaje> findByTipo(TipoFichaje tipo);
 
     List<Fichaje> findByHoraBetween(LocalDateTime inicio, LocalDateTime fin);
 
-    List<Fichaje> findByEmpleadoEmailUID(String emailUID);
 }
