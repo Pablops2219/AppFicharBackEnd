@@ -1,6 +1,6 @@
 package com.somllar.fichar.model;
 
-import com.somllar.fichar.security.persistance.entity.Usuario;
+import com.somllar.fichar.security.persistance.entity.UsuarioEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +21,7 @@ public class Fichaje {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    private UsuarioEntity usuario;
 
     @ManyToOne
     @JoinColumn(name = "casa_id", nullable = false)

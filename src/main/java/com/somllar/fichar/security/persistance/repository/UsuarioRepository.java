@@ -1,14 +1,14 @@
 package com.somllar.fichar.security.persistance.repository;
 
-import com.somllar.fichar.security.persistance.entity.Usuario;
+import com.somllar.fichar.security.persistance.entity.UsuarioEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> {
 
-    Optional<Usuario> findByUsername(String username);
+    Optional<UsuarioEntity> findByUsername(String username);
 
 }

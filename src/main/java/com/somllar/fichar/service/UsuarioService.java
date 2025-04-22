@@ -1,14 +1,14 @@
 package com.somllar.fichar.service;
 
 
-import com.somllar.fichar.security.persistance.entity.Usuario;
+import com.somllar.fichar.security.persistance.entity.UsuarioEntity;
 
 import java.util.List;
 
 public interface UsuarioService {
-    Usuario saveUsuario(Usuario usuario);
-    List<Usuario> getAllUsuarios();
-    Usuario getUsuarioById(Long id);
-    Usuario updateUsuario(Usuario usuario, long id);
+    UsuarioEntity saveUsuario(UsuarioEntity usuario);
+    List<UsuarioEntity> getAllUsuarios();
+    UsuarioEntity getUsuarioById(Long id);
+    UsuarioEntity updateUsuario(UsuarioEntity usuario, long id);
     void deleteUsuario(Long id);
 }

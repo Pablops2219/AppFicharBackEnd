@@ -1,7 +1,7 @@
 package com.somllar.fichar.security.service;
 
 
-import com.somllar.fichar.security.persistance.entity.Usuario;
+import com.somllar.fichar.security.persistance.entity.UsuarioEntity;
 import com.somllar.fichar.security.persistance.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,11 +18,11 @@ import java.util.List;
 public class UserDetailServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UsuarioRepository userRepository;
+    private UsuarioRepository usuarioRepository;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Usuario userEntity = userRepository.findByUsername(username)
+        UsuarioEntity userEntity = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no existe."));
 
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();

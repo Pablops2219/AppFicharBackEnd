@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/fichajes")
-@CrossOrigin(origins = "*")
 public class FichajeController {
 
     @Autowired
