@@ -1,11 +1,9 @@
 package com.somllar.fichar.controller;
 
-import com.somllar.fichar.model.Casa;
+import com.somllar.fichar.persistance.entity.CasaEntity;
 import com.somllar.fichar.service.CasaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,19 +18,19 @@ public class CasaController {
 
     @Operation(summary = "Crear una nueva casa")
     @PostMapping
-    public Casa saveCasa(@RequestBody Casa casa) {
+    public CasaEntity saveCasa(@RequestBody CasaEntity casa) {
         return casaService.saveCasa(casa);
     }
 
     @Operation(summary = "Obtener todas las casas")
     @GetMapping
-    public List<Casa> getAllCasas() {
+    public List<CasaEntity> getAllCasas() {
         return casaService.getAllCasas();
     }
 
     @Operation(summary = "Obtener casa por ID")
     @GetMapping("/{id}")
-    public Casa getCasaById(
+    public CasaEntity getCasaById(
             @Parameter(description = "ID de la casa a buscar") @PathVariable Long id) {
         return casaService.getCasaById(id);
     }

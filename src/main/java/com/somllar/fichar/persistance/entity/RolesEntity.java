@@ -1,4 +1,4 @@
-package com.somllar.fichar.security.persistance.entity;
+package com.somllar.fichar.persistance.entity;
 
 
 import jakarta.persistence.*;
@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "roles")
-public class Roles {
+public class RolesEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,5 +26,5 @@ public class Roles {
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "permisos_de_roles", joinColumns = @JoinColumn(name = "id_rol"), inverseJoinColumns = @JoinColumn(name = "id_permiso"))
-    private Set<Permisos> permissionList = new HashSet<>();
+    private Set<PermisosEntity> permissionList = new HashSet<>();
 }

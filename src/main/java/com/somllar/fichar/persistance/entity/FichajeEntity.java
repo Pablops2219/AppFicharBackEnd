@@ -1,6 +1,5 @@
-package com.somllar.fichar.model;
+package com.somllar.fichar.persistance.entity;
 
-import com.somllar.fichar.security.persistance.entity.UsuarioEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "fichajes")
-public class Fichaje {
+public class FichajeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,11 +24,11 @@ public class Fichaje {
 
     @ManyToOne
     @JoinColumn(name = "casa_id", nullable = false)
-    private Casa casa;
+    private CasaEntity casa;
 
     private LocalDateTime hora;
 
     @Enumerated(EnumType.STRING)
-    private TipoFichaje tipo;
+    private FichajeEnum tipo;
 
 }

@@ -1,4 +1,4 @@
-package com.somllar.fichar.model;
+package com.somllar.fichar.persistance.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "casas")
-public class Casa {
+public class CasaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

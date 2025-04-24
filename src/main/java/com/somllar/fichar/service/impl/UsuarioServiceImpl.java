@@ -1,7 +1,7 @@
 package com.somllar.fichar.service.impl;
 
-import com.somllar.fichar.security.persistance.entity.UsuarioEntity;
-import com.somllar.fichar.security.persistance.repository.UsuarioRepository;
+import com.somllar.fichar.persistance.entity.UsuarioEntity;
+import com.somllar.fichar.persistance.repository.UsuarioRepository;
 import com.somllar.fichar.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +21,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public UsuarioEntity saveUsuario(UsuarioEntity usuario) {
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        usuario.setUsername(generarUsername(usuario.getFirstName(), usuario.getLastName()));
         return usuarioRepository.save(usuario);
     }
 
@@ -36,6 +37,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    public UsuarioEntity getUsuarioByEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrada con email " + email));
+    }
+
+    @Override
     public UsuarioEntity updateUsuario(UsuarioEntity usuario, long id) {
         UsuarioEntity existingUsuario = usuarioRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Usuario no encontrado")
@@ -43,7 +50,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         existingUsuario.setFirstName(usuario.getFirstName());
         existingUsuario.setLastName(usuario.getLastName());
-        existingUsuario.setUsername(generarUsername(usuario.getFirstName(), usuario.getLastName()));
+        existingUsuario.setUsername(usuario.getUsername());
         existingUsuario.setEmail(usuario.getEmail());
         existingUsuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         existingUsuario.setEnabled(usuario.isEnabled());
@@ -54,10 +61,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.save(existingUsuario);
     }
 
-    private String generarUsername(String nombre, String apellido) {
+    public String generarUsername(String nombre, String apellido) {
         String parteNombre = nombre.length() >= 3 ? nombre.substring(0, 3) : nombre;
         String parteApellido = apellido.length() >= 3 ? apellido.substring(0, 3) : apellido;
-        return parteNombre + parteApellido;
+        return (parteNombre + parteApellido).toLowerCase();
     }
 
 

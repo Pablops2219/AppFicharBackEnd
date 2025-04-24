@@ -1,7 +1,7 @@
 package com.somllar.fichar.service.impl;
 
-import com.somllar.fichar.model.Casa;
-import com.somllar.fichar.repository.CasaRepository;
+import com.somllar.fichar.persistance.entity.CasaEntity;
+import com.somllar.fichar.persistance.repository.CasaRepository;
 import com.somllar.fichar.service.CasaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,17 +15,17 @@ public class CasaServiceImpl implements CasaService {
     private CasaRepository casaRepository;
 
     @Override
-    public Casa saveCasa(Casa casa) {
+    public CasaEntity saveCasa(CasaEntity casa) {
         return casaRepository.save(casa);
     }
 
     @Override
-    public List<Casa> getAllCasas() {
+    public List<CasaEntity> getAllCasas() {
         return casaRepository.findAll();
     }
 
     @Override
-    public Casa getCasaById(Long id) {
+    public CasaEntity getCasaById(Long id) {
         return casaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Casa no encontrada con id " + id));
     }

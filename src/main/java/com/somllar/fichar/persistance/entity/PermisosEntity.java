@@ -1,4 +1,4 @@
-package com.somllar.fichar.security.persistance.entity;
+package com.somllar.fichar.persistance.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "permisos")
-public class Permisos {
+public class PermisosEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

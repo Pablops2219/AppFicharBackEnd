@@ -1,7 +1,6 @@
-package com.somllar.fichar.security.persistance.entity;
+package com.somllar.fichar.persistance.entity;
 
 
-import com.somllar.fichar.model.Fichaje;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,10 +38,10 @@ public class UsuarioEntity {
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "roles_de_usuarios", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "id_rol"))
-    private Set<Roles> roles = new HashSet<>();
+    private Set<RolesEntity> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Fichaje> fichajes;
+    private List<FichajeEntity> fichajes;
 
     //Mierdas de la cuenta
 

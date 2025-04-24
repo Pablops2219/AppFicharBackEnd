@@ -4,11 +4,11 @@ package com.somllar.fichar;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.somllar.fichar.security.persistance.entity.UsuarioEntity;
-import com.somllar.fichar.security.persistance.repository.UsuarioRepository;
-import com.somllar.fichar.security.persistance.entity.Permisos;
-import com.somllar.fichar.security.persistance.entity.Roles;
-import com.somllar.fichar.security.persistance.entity.RoleEnum;
+import com.somllar.fichar.persistance.entity.UsuarioEntity;
+import com.somllar.fichar.persistance.repository.UsuarioRepository;
+import com.somllar.fichar.persistance.entity.PermisosEntity;
+import com.somllar.fichar.persistance.entity.RolesEntity;
+import com.somllar.fichar.persistance.entity.RoleEnum;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,61 +26,66 @@ public class FicharApplication {
 
     public static void main(String[] args) throws IOException {
         SpringApplication.run(FicharApplication.class, args);
-        FileInputStream refreshToken =
-                new FileInputStream("src/main/resources/fichar-aa031-firebase-adminsdk-fbsvc-6f4b5ce917.json");
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(refreshToken))
-                .build();
-
-        FirebaseApp.initializeApp(options);
+//        Configuracion de FireBase (en desuso)
+//        FileInputStream refreshToken =
+//                new FileInputStream("src/main/resources/fichar-aa031-firebase-adminsdk-fbsvc-6f4b5ce917.json");
+//
+//        FirebaseOptions options = FirebaseOptions.builder()
+//                .setCredentials(GoogleCredentials.fromStream(refreshToken))
+//                .build();
+//
+//        FirebaseApp.initializeApp(options);
 
 
         System.out.println("Server is Running");
         System.out.println("Documentacion en: http://localhost:8080/swagger-ui.html");
+        //System.out.println("Si hay problemas con LomBok ir a: \nAjustes->Build,Execution,Deployment->Compiler->Annotation Processors->Fichar->Elegir manualmente el jar de LomBok");
     }
 
     @Bean
     CommandLineRunner init(UsuarioRepository usuarioRepository) {
         return args -> {
             /* Create PERMISSIONS */
-            Permisos createPermission = Permisos.builder()
+            PermisosEntity createPermission = PermisosEntity.builder()
                     .name("CREATE")
                     .build();
 
-            Permisos readPermission = Permisos.builder()
+            PermisosEntity readPermission = PermisosEntity.builder()
                     .name("READ")
                     .build();
 
-            Permisos updatePermission = Permisos.builder()
+            PermisosEntity updatePermission = PermisosEntity.builder()
                     .name("UPDATE")
                     .build();
 
-            Permisos deletePermission = Permisos.builder()
+            PermisosEntity deletePermission = PermisosEntity.builder()
                     .name("DELETE")
                     .build();
 
-            Permisos refactorPermission = Permisos.builder()
+            PermisosEntity refactorPermission = PermisosEntity.builder()
                     .name("REFACTOR")
                     .build();
 
             /* Create ROLES */
-            Roles roleAdmin = Roles.builder()
-                    .roleEnum(RoleEnum.ADMIN)
-                    .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission))
-                    .build();
-
-            Roles roleUser = Roles.builder()
+            RolesEntity roleUser = RolesEntity.builder()
                     .roleEnum(RoleEnum.USER)
                     .permissionList(Set.of(createPermission, readPermission))
                     .build();
 
-            Roles roleManager = Roles.builder()
+
+            RolesEntity roleManager = RolesEntity.builder()
                     .roleEnum(RoleEnum.MANAGER)
-                    .permissionList(Set.of(readPermission))
+                    .permissionList(Set.of(createPermission, readPermission))
                     .build();
 
-            Roles roleDeveloper = Roles.builder()
+            RolesEntity roleAdmin = RolesEntity.builder()
+                    .roleEnum(RoleEnum.ADMIN)
+                    .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission))
+                    .build();
+
+
+            RolesEntity roleDeveloper = RolesEntity.builder()
                     .roleEnum(RoleEnum.DEVELOPER)
                     .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission, refactorPermission))
                     .build();
@@ -96,7 +101,7 @@ public class FicharApplication {
                     .accountNoExpired(true)
                     .accountNoLocked(true)
                     .credentialNoExpired(true)
-                    .roles(Set.of(roleDeveloper))
+                    .roles(Set.of(roleDeveloper,roleAdmin))
                     .build();
 
             UsuarioEntity userDaniel = UsuarioEntity.builder()
@@ -135,7 +140,7 @@ public class FicharApplication {
                     .accountNoExpired(true)
                     .accountNoLocked(true)
                     .credentialNoExpired(true)
-                    .roles(Set.of(roleDeveloper))
+                    .roles(Set.of(roleAdmin))
                     .build();
 
 

@@ -1,12 +1,12 @@
 package com.somllar.fichar.service;
 
-import com.somllar.fichar.model.Casa;
+import com.somllar.fichar.persistance.entity.CasaEntity;
 
 import java.util.List;
 
 public interface CasaService {
-    Casa saveCasa(Casa casa);
-    List<Casa> getAllCasas();
-    Casa getCasaById(Long id);
+    CasaEntity saveCasa(CasaEntity casa);
+    List<CasaEntity> getAllCasas();
+    CasaEntity getCasaById(Long id);
     void deleteCasa(Long id);
 }

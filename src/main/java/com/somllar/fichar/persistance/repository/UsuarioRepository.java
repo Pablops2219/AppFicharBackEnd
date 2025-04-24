@@ -1,6 +1,6 @@
-package com.somllar.fichar.security.persistance.repository;
+package com.somllar.fichar.persistance.repository;
 
-import com.somllar.fichar.security.persistance.entity.UsuarioEntity;
+import com.somllar.fichar.persistance.entity.UsuarioEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,5 +10,10 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> {
 
     Optional<UsuarioEntity> findByUsername(String username);
+
+
+    Optional<UsuarioEntity> findByEmail(String email);
+
+
 
 }

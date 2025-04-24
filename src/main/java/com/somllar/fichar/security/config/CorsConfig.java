@@ -1,4 +1,4 @@
-package com.somllar.fichar;
+package com.somllar.fichar.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

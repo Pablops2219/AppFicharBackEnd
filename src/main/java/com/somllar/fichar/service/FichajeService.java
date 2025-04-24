@@ -1,21 +1,21 @@
 package com.somllar.fichar.service;
 
-import com.somllar.fichar.model.Fichaje;
-import com.somllar.fichar.model.TipoFichaje;
+import com.somllar.fichar.persistance.entity.FichajeEntity;
+import com.somllar.fichar.persistance.entity.FichajeEnum;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface FichajeService {
-    Fichaje saveFichaje(Fichaje fichaje);
-    List<Fichaje> getAllFichajes();
-    Fichaje getFichajeById(Long id);
+    FichajeEntity saveFichaje(FichajeEntity fichaje);
+    List<FichajeEntity> getAllFichajes();
+    FichajeEntity getFichajeById(Long id);
 
-    List<Fichaje> getFichajesByUsuario(Long usuarioId);
-    List<Fichaje> getFichajesByCasa(Long casaId);
-    List<Fichaje> getFichajesByTipo(TipoFichaje tipo);
+    List<FichajeEntity> getFichajesByUsuario(Long usuarioId);
+    List<FichajeEntity> getFichajesByCasa(Long casaId);
+    List<FichajeEntity> getFichajesByTipo(FichajeEnum tipo);
 
-    List<Fichaje> getFichajesByRangoFechas(LocalDateTime inicio, LocalDateTime fin);
+    List<FichajeEntity> getFichajesByRangoFechas(LocalDateTime inicio, LocalDateTime fin);
 
 
 }

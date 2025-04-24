@@ -1,7 +1,10 @@
 package com.somllar.fichar.security.config;
 
 
-import com.somllar.fichar.security.service.UserDetailServiceImpl;
+import com.somllar.fichar.security.filter.JwtTokenValidator;
+import com.somllar.fichar.service.impl.UserDetailServiceImpl;
+import com.somllar.fichar.util.JWTUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,15 +18,18 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true) // Esto habilita @PreAuthorize y @PostAuthorize
 public class SecurityConfig {
 
+
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -32,25 +38,28 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
-                    // Configurar los endpoints publicos
-                    http.requestMatchers(HttpMethod.GET, "/auth/get").permitAll();
 
+                    http.requestMatchers("/auth/**").permitAll();
 
-
-                    // Cofnigurar los endpoints privados
-                    http.requestMatchers(HttpMethod.POST, "/auth/post").hasAnyRole("ADMIN", "DEVELOPER");
-                    http.requestMatchers(HttpMethod.POST, "/auth/post").hasRole("ADMIN");
-                    http.requestMatchers(HttpMethod.PATCH, "/auth/patch").hasAnyAuthority("REFACTOR");
+                    // Control por roles
+                    http.requestMatchers("/api/usuarios/**").hasAnyRole("ADMIN", "DEVELOPER");
+                    http.requestMatchers("/api/fichajes/**").hasAnyRole("ADMIN", "DEVELOPER");
+                    http.requestMatchers("/api/casas/**").hasAnyRole("ADMIN", "DEVELOPER");
+                    http.requestMatchers("/api/miusuario/**").authenticated();
                     http.requestMatchers(
+                            "/auth/**",
+                            "/swagger-ui.html",
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
                             "/v3/api-docs.yaml",
-                            "/swagger-ui.html"
-                    ).hasRole("DEVELOPER");
+                            "/v3/api-docs",
+                            "/swagger-resources/**",
+                            "/webjars/**").permitAll();
 
-                    // Configurar el resto de endpoint - NO ESPECIFICADOS
-                    http.anyRequest().denyAll();
+
+                    http.anyRequest().denyAll(); // Todo lo demás se bloquea
                 })
+                .addFilterBefore(new JwtTokenValidator(jwtUtil), BasicAuthenticationFilter.class)
                 .build();
     }
 
@@ -61,6 +70,7 @@ public class SecurityConfig {
 //                .csrf(csrf -> csrf.disable())
 //                .httpBasic(Customizer.withDefaults())
 //                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authorizeHttpRequests(http -> http.anyRequest().permitAll())
 //                .build();
 //    }
 

@@ -1,7 +1,7 @@
 package com.somllar.fichar.controller;
 
-import com.somllar.fichar.model.Fichaje;
-import com.somllar.fichar.model.TipoFichaje;
+import com.somllar.fichar.persistance.entity.FichajeEntity;
+import com.somllar.fichar.persistance.entity.FichajeEnum;
 import com.somllar.fichar.service.FichajeService;
 import com.somllar.fichar.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -30,33 +31,33 @@ public class FichajeController {
             @ApiResponse(responseCode = "400", description = "Datos inválidos del fichaje")
     })
     @PostMapping
-    public Fichaje crearFichaje(@RequestBody Fichaje fichaje) {
+    public FichajeEntity crearFichaje(@RequestBody FichajeEntity fichaje) {
         return fichajeService.saveFichaje(fichaje);
     }
 
     @Operation(summary = "Obtener todos los fichajes")
     @GetMapping
-    public List<Fichaje> obtenerTodos() {
+    public List<FichajeEntity> obtenerTodos() {
         return fichajeService.getAllFichajes();
     }
 
     @Operation(summary = "Obtener fichaje por ID")
     @GetMapping("/{id}")
-    public Fichaje obtenerPorId(
+    public FichajeEntity obtenerPorId(
             @Parameter(description = "ID del fichaje a buscar") @PathVariable Long id) {
         return fichajeService.getFichajeById(id);
     }
 
     @Operation(summary = "Obtener fichajes por ID de usuario")
     @GetMapping("/usuario/{usuarioId}")
-    public List<Fichaje> getFichajesByUsuario(
+    public List<FichajeEntity> getFichajesByUsuario(
             @Parameter(description = "ID del usuario") @PathVariable Long usuarioId) {
         return fichajeService.getFichajesByUsuario(usuarioId);
     }
 
     @Operation(summary = "Obtener fichajes por ID de casa")
     @GetMapping("/casa/{casaId}")
-    public List<Fichaje> getFichajesByCasa(
+    public List<FichajeEntity> getFichajesByCasa(
             @Parameter(description = "ID de la casa") @PathVariable Long casaId) {
         return fichajeService.getFichajesByCasa(casaId);
     }
@@ -67,15 +68,15 @@ public class FichajeController {
             @ApiResponse(responseCode = "400", description = "Tipo no válido")
     })
     @GetMapping("/tipo/{tipo}")
-    public List<Fichaje> getFichajesByTipo(
+    public List<FichajeEntity> getFichajesByTipo(
             @Parameter(description = "Tipo de fichaje (ENTRADA o SALIDA)") @PathVariable String tipo) {
-        TipoFichaje tipoEnum = TipoFichaje.valueOf(tipo.toUpperCase());
+        FichajeEnum tipoEnum = FichajeEnum.valueOf(tipo.toUpperCase());
         return fichajeService.getFichajesByTipo(tipoEnum);
     }
 
     @Operation(summary = "Obtener fichajes entre fechas")
     @GetMapping("/fecha")
-    public List<Fichaje> getFichajesByRangoFechas(
+    public List<FichajeEntity> getFichajesByRangoFechas(
             @Parameter(description = "Fecha de inicio en formato ISO 8601")
             @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
 
