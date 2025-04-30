@@ -37,6 +37,36 @@ public class UsuarioController {
         );
     }
 
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DEVELOPER')")
+    @Operation(summary = "Actualiza parcialmente un usuario")
+    public ResponseEntity<UsuarioEntity> patchUsuario(
+            @PathVariable Long id,
+            @RequestBody UsuarioEntity cambios) {
+
+        UsuarioEntity existente = usuarioService.getUsuarioById(id);
+
+        if (cambios.getEmail() != null) {
+            existente.setEmail(cambios.getEmail());
+        }
+        if (cambios.getFirstName() != null) {
+            existente.setFirstName(cambios.getFirstName());
+        }
+        if (cambios.getLastName() != null) {
+            existente.setLastName(cambios.getLastName());
+        }
+        if (cambios.getUsername() != null) {
+            existente.setUsername(cambios.getUsername());
+        }
+        if (cambios.getPassword() != null && !cambios.getPassword().isBlank()) {
+            existente.setPassword(cambios.getPassword()); // Encripta si es necesario
+        }
+
+        UsuarioEntity actualizado = usuarioService.saveUsuario(existente);
+        return ResponseEntity.ok(actualizado);
+    }
+
+
     @Operation(summary = "Obtener todos los usuarios")
     @GetMapping
     public List<UsuarioEntity> getAllUsuarios() {
@@ -57,6 +87,7 @@ public class UsuarioController {
     public ResponseEntity<UsuarioEntity> updateUsuario(
             @Parameter(description = "ID del usuario a actualizar") @PathVariable("id") long id,
             @RequestBody UsuarioEntity usuario) {
+
         return new ResponseEntity<>(usuarioService.updateUsuario(usuario, id), HttpStatus.OK);
     }
 

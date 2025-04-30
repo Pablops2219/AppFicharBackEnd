@@ -4,11 +4,9 @@ package com.somllar.fichar;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.somllar.fichar.persistance.entity.UsuarioEntity;
+import com.somllar.fichar.persistance.entity.*;
+import com.somllar.fichar.persistance.repository.CasaRepository;
 import com.somllar.fichar.persistance.repository.UsuarioRepository;
-import com.somllar.fichar.persistance.entity.PermisosEntity;
-import com.somllar.fichar.persistance.entity.RolesEntity;
-import com.somllar.fichar.persistance.entity.RoleEnum;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -44,107 +42,110 @@ public class FicharApplication {
     }
 
     @Bean
-    CommandLineRunner init(UsuarioRepository usuarioRepository) {
+    CommandLineRunner init(UsuarioRepository usuarioRepository,
+                           CasaRepository casaRepository) {
         return args -> {
             /* Create PERMISSIONS */
-            PermisosEntity createPermission = PermisosEntity.builder()
-                    .name("CREATE")
-                    .build();
+//            PermisosEntity createPermission = PermisosEntity.builder()
+//                    .name("CREATE")
+//                    .build();
+//
+//            PermisosEntity readPermission = PermisosEntity.builder()
+//                    .name("READ")
+//                    .build();
+//
+//            PermisosEntity updatePermission = PermisosEntity.builder()
+//                    .name("UPDATE")
+//                    .build();
+//
+//            PermisosEntity deletePermission = PermisosEntity.builder()
+//                    .name("DELETE")
+//                    .build();
+//
+//            PermisosEntity refactorPermission = PermisosEntity.builder()
+//                    .name("REFACTOR")
+//                    .build();
+//
+//            /* Create ROLES */
+//            RolesEntity roleUser = RolesEntity.builder()
+//                    .roleEnum(RoleEnum.USER)
+//                    .permissionList(Set.of(createPermission, readPermission))
+//                    .build();
+//
+//
+//            RolesEntity roleManager = RolesEntity.builder()
+//                    .roleEnum(RoleEnum.MANAGER)
+//                    .permissionList(Set.of(createPermission, readPermission))
+//                    .build();
+//
+//            RolesEntity roleAdmin = RolesEntity.builder()
+//                    .roleEnum(RoleEnum.ADMIN)
+//                    .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission))
+//                    .build();
+//
+//
+//            RolesEntity roleDeveloper = RolesEntity.builder()
+//                    .roleEnum(RoleEnum.DEVELOPER)
+//                    .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission, refactorPermission))
+//                    .build();
+////
+////            /* CREATE USERS */
+//            UsuarioEntity userSantiago = UsuarioEntity.builder()
+//                    .firstName("Pablo")
+//                    .lastName("Pernias")
+//                    .username("pablops")
+//                    .email("sanper@somllar.org")
+//                    .password(new BCryptPasswordEncoder().encode("1111"))
+//                    .isEnabled(true)
+//                    .accountNoExpired(true)
+//                    .accountNoLocked(true)
+//                    .credentialNoExpired(true)
+//                    .roles(Set.of(roleDeveloper,roleAdmin))
+//                    .build();
+//
+//            UsuarioEntity userDaniel = UsuarioEntity.builder()
+//                    .firstName("Daniel")
+//                    .lastName("Gómez")
+//                    .username("dangom")
+//                    .email("dangom@somllar.org")
+//                    .password(new BCryptPasswordEncoder().encode("1234"))
+//                    .isEnabled(true)
+//                    .accountNoExpired(true)
+//                    .accountNoLocked(true)
+//                    .credentialNoExpired(true)
+//                    .roles(Set.of(roleUser))
+//                    .build();
+//
+//            UsuarioEntity userAndrea = UsuarioEntity.builder()
+//                    .firstName("Andrea")
+//                    .lastName("Ruiz")
+//                    .username("andrui")
+//                    .email("andrui@somllar.org")
+//                    .password(new BCryptPasswordEncoder().encode("1234"))
+//                    .isEnabled(true)
+//                    .accountNoExpired(true)
+//                    .accountNoLocked(true)
+//                    .credentialNoExpired(true)
+//                    .roles(Set.of(roleManager))
+//                    .build();
+//
+//            UsuarioEntity userAnyi = UsuarioEntity.builder()
+//                    .firstName("Anyi")
+//                    .lastName("Martínez")
+//                    .username("anymar")
+//                    .email("anymar@somllar.org")
+//                    .password(new BCryptPasswordEncoder().encode("1234"))
+//                    .isEnabled(true)
+//                    .accountNoExpired(true)
+//                    .accountNoLocked(true)
+//                    .credentialNoExpired(true)
+//                    .roles(Set.of(roleAdmin))
+//                    .build();
+//
+//
+//            usuarioRepository.saveAll(List.of(userAnyi, userAndrea, userDaniel, userSantiago));
 
-            PermisosEntity readPermission = PermisosEntity.builder()
-                    .name("READ")
-                    .build();
 
-            PermisosEntity updatePermission = PermisosEntity.builder()
-                    .name("UPDATE")
-                    .build();
-
-            PermisosEntity deletePermission = PermisosEntity.builder()
-                    .name("DELETE")
-                    .build();
-
-            PermisosEntity refactorPermission = PermisosEntity.builder()
-                    .name("REFACTOR")
-                    .build();
-
-            /* Create ROLES */
-            RolesEntity roleUser = RolesEntity.builder()
-                    .roleEnum(RoleEnum.USER)
-                    .permissionList(Set.of(createPermission, readPermission))
-                    .build();
-
-
-            RolesEntity roleManager = RolesEntity.builder()
-                    .roleEnum(RoleEnum.MANAGER)
-                    .permissionList(Set.of(createPermission, readPermission))
-                    .build();
-
-            RolesEntity roleAdmin = RolesEntity.builder()
-                    .roleEnum(RoleEnum.ADMIN)
-                    .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission))
-                    .build();
-
-
-            RolesEntity roleDeveloper = RolesEntity.builder()
-                    .roleEnum(RoleEnum.DEVELOPER)
-                    .permissionList(Set.of(createPermission, readPermission, updatePermission, deletePermission, refactorPermission))
-                    .build();
-
-            /* CREATE USERS */
-            UsuarioEntity userSantiago = UsuarioEntity.builder()
-                    .firstName("Pablo")
-                    .lastName("Pernias")
-                    .username("pablops")
-                    .email("sanper@somllar.org")
-                    .password(new BCryptPasswordEncoder().encode("1111"))
-                    .isEnabled(true)
-                    .accountNoExpired(true)
-                    .accountNoLocked(true)
-                    .credentialNoExpired(true)
-                    .roles(Set.of(roleDeveloper,roleAdmin))
-                    .build();
-
-            UsuarioEntity userDaniel = UsuarioEntity.builder()
-                    .firstName("Daniel")
-                    .lastName("Gómez")
-                    .username("dangom")
-                    .email("dangom@somllar.org")
-                    .password(new BCryptPasswordEncoder().encode("1234"))
-                    .isEnabled(true)
-                    .accountNoExpired(true)
-                    .accountNoLocked(true)
-                    .credentialNoExpired(true)
-                    .roles(Set.of(roleUser))
-                    .build();
-
-            UsuarioEntity userAndrea = UsuarioEntity.builder()
-                    .firstName("Andrea")
-                    .lastName("Ruiz")
-                    .username("andrui")
-                    .email("andrui@somllar.org")
-                    .password(new BCryptPasswordEncoder().encode("1234"))
-                    .isEnabled(true)
-                    .accountNoExpired(true)
-                    .accountNoLocked(true)
-                    .credentialNoExpired(true)
-                    .roles(Set.of(roleManager))
-                    .build();
-
-            UsuarioEntity userAnyi = UsuarioEntity.builder()
-                    .firstName("Anyi")
-                    .lastName("Martínez")
-                    .username("anymar")
-                    .email("anymar@somllar.org")
-                    .password(new BCryptPasswordEncoder().encode("1234"))
-                    .isEnabled(true)
-                    .accountNoExpired(true)
-                    .accountNoLocked(true)
-                    .credentialNoExpired(true)
-                    .roles(Set.of(roleAdmin))
-                    .build();
-
-
-            usuarioRepository.saveAll(List.of(userSantiago, userDaniel, userAndrea, userAnyi));
         };
     }
 
