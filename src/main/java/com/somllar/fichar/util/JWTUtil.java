@@ -26,6 +26,9 @@ public class JWTUtil {
     @Value("${security.jwt.user.generator}")
     private String userGenerator;
 
+    @Value("${security.jwt.lifespan}")
+    private Long lifespan;
+
     public String createToken(Authentication authentication) {
         Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
 
@@ -40,7 +43,7 @@ public class JWTUtil {
                 .withSubject(username)
                 .withClaim("authorities", authorities)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1800000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + lifespan))
                 .withJWTId(UUID.randomUUID().toString())
                 .withNotBefore(new Date(System.currentTimeMillis()))
                 .sign(algorithm);
