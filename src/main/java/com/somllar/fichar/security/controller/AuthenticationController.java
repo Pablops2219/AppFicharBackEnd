@@ -22,7 +22,7 @@ public class AuthenticationController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<AuthResponse> register(@RequestBody @Valid AuthCreateUserRequest userRequest){
-        return new ResponseEntity<>(this.userDetailService.createUser(userRequest), HttpStatus.CREATED);
+        return new ResponseEntity<>(this.userDetailService.createUser(userRequest, true), HttpStatus.CREATED);
     }
 
     @PostMapping("/log-in")

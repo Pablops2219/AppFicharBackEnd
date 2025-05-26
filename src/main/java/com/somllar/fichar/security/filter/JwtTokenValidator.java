@@ -34,7 +34,6 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // 🛑 Ignorar Swagger y docs
         if (path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-resources")

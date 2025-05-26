@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,11 @@ public class UsuarioEntity {
     @JsonIgnore
     private List<FichajeEntity> fichajes;
 
+    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ManagerCasaEntity> managerCasas = new ArrayList<>();
+
+
     //Mierdas de la cuenta
 
     @Column(name = "esta_activada")
@@ -58,4 +64,12 @@ public class UsuarioEntity {
 
     @Column(name = "credenciales_no_vencidas")
     private boolean credentialNoExpired;
+
+    public static String generarUsername(UsuarioEntity usuario) {
+        String nombre = usuario.getFirstName();
+        String apellido = usuario.getLastName();
+        String parteNombre = nombre.length() >= 3 ? nombre.substring(0, 3) : nombre;
+        String parteApellido = apellido.length() >= 3 ? apellido.substring(0, 3) : apellido;
+        return (parteNombre + parteApellido).toLowerCase();
+    }
 }

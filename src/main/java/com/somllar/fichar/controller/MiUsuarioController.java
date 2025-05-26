@@ -1,8 +1,7 @@
 package com.somllar.fichar.controller;
 
-import com.somllar.fichar.persistance.entity.FichajeEntity;
-import com.somllar.fichar.persistance.entity.FichajeEnum;
-import com.somllar.fichar.persistance.entity.UsuarioEntity;
+import com.somllar.fichar.persistance.entity.*;
+import com.somllar.fichar.persistance.repository.ManagerCasaRepository;
 import com.somllar.fichar.security.controller.dto.FichajeRequest;
 import com.somllar.fichar.service.CasaService;
 import com.somllar.fichar.service.FichajeService;
@@ -16,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,9 +27,12 @@ public class MiUsuarioController {
     @Autowired
     private FichajeService fichajeService;
     @Autowired
-    private UsuarioService usuarioService;;
+    private UsuarioService usuarioService;
     @Autowired
     private CasaService casaService;
+
+    @Autowired
+    private ManagerCasaRepository managerCasaRepository;
 
     @Operation(summary = "Crea un fichaje en el momento a partir del token enviado")
     @ApiResponses(value = {
@@ -55,4 +58,39 @@ public class MiUsuarioController {
         return fichajeService.getFichajesByUsuario(usuario.getId());
     }
 
+    @Operation(summary = "Obtener las casas en las que soy manager")
+    @GetMapping("/manager-casas")
+    public List<CasaEntity> obtenerCasasManager(Authentication authentication) {
+        String email = authentication.getName();
+        UsuarioEntity usuario = usuarioService.getUsuarioByEmail(email);
+
+        List<ManagerCasaEntity> relaciones = managerCasaRepository.findByManager(usuario);
+
+        return relaciones.stream()
+                .map(ManagerCasaEntity::getCasa)
+                .toList();
+    }
+
+    @Operation(summary = "Obtener los fichajes de las casas en las que soy manager")
+    @GetMapping("/manager-fichajes")
+    public List<FichajeEntity> obtenerFichajesManager(Authentication authentication) {
+        String email = authentication.getName();
+        UsuarioEntity usuario = usuarioService.getUsuarioByEmail(email);
+
+        List<ManagerCasaEntity> relaciones = managerCasaRepository.findByManager(usuario);
+
+        List<CasaEntity> casas = relaciones.stream()
+                .map(ManagerCasaEntity::getCasa)
+                .toList();
+
+        List<FichajeEntity> fichajes = new ArrayList<>();
+
+        System.out.println("A ver " + usuario + relaciones + casas);
+
+        for (CasaEntity casa : casas) {
+            fichajes.addAll(fichajeService.getFichajesByCasa(casa.getId()));
+        }
+
+        return fichajes;
+    }
 }

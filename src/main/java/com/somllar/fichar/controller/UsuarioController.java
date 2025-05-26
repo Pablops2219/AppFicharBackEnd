@@ -1,20 +1,34 @@
 package com.somllar.fichar.controller;
 
+import com.somllar.fichar.dto.ManagerCasaUpdateDTO;
+import com.somllar.fichar.dto.ManagerDTO;
+import com.somllar.fichar.dto.UsuarioPatchDTO;
+import com.somllar.fichar.persistance.entity.RolesEntity;
 import com.somllar.fichar.persistance.entity.UsuarioEntity;
+import com.somllar.fichar.persistance.repository.RolesRepository;
+import com.somllar.fichar.security.controller.dto.AuthCreateUserRequest;
+import com.somllar.fichar.security.controller.dto.AuthResponse;
 import com.somllar.fichar.service.UsuarioService;
+import com.somllar.fichar.service.impl.UserDetailServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @EnableWebSecurity
@@ -25,24 +39,32 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private UserDetailServiceImpl userDetailService;
+
+    @PreAuthorize("hasAnyRole('ADMIN','DEVELOPER')")
     @Operation(summary = "Crear un nuevo usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Empleado creado correctamente"),
             @ApiResponse(responseCode = "400", description = "Datos inválidos")
     })
     @PostMapping
-    public ResponseEntity<UsuarioEntity> saveUsuario(@RequestBody UsuarioEntity usuario) {
-        return new ResponseEntity<>(
-                usuarioService.saveUsuario(usuario), HttpStatus.CREATED
-        );
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid AuthCreateUserRequest userRequest){
+        return new ResponseEntity<>(this.userDetailService.createUser(userRequest, false), HttpStatus.CREATED);
     }
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RolesRepository rolesRepository;
+
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DEVELOPER')")
-    @Operation(summary = "Actualiza parcialmente un usuario")
+    @Operation(summary = "Actualiza parcialmente un usuario, incluyendo roles")
     public ResponseEntity<UsuarioEntity> patchUsuario(
             @PathVariable Long id,
-            @RequestBody UsuarioEntity cambios) {
+            @RequestBody UsuarioPatchDTO cambios) {
 
         UsuarioEntity existente = usuarioService.getUsuarioById(id);
 
@@ -55,16 +77,26 @@ public class UsuarioController {
         if (cambios.getLastName() != null) {
             existente.setLastName(cambios.getLastName());
         }
-        if (cambios.getUsername() != null) {
-            existente.setUsername(cambios.getUsername());
-        }
         if (cambios.getPassword() != null && !cambios.getPassword().isBlank()) {
-            existente.setPassword(cambios.getPassword()); // Encripta si es necesario
+            existente.setPassword(passwordEncoder.encode(cambios.getPassword())); // Encripta si hace falta
         }
 
+        if (cambios.getRoles() != null && !cambios.getRoles().isEmpty()) {
+            List<String> roleNames = cambios.getRoles();
+
+            List<RolesEntity> rolesEncontrados = rolesRepository.findByRoleEnumIn(roleNames);
+
+            if (rolesEncontrados.size() != roleNames.size()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            existente.setRoles(new HashSet<>(rolesEncontrados));
+        }
         UsuarioEntity actualizado = usuarioService.saveUsuario(existente);
         return ResponseEntity.ok(actualizado);
     }
+
+
 
 
     @Operation(summary = "Obtener todos los usuarios")
@@ -72,6 +104,21 @@ public class UsuarioController {
     public List<UsuarioEntity> getAllUsuarios() {
         return usuarioService.getAllUsuarios();
     }
+
+
+    @Operation(summary = "Obtener todos los managers")
+    @GetMapping("/managers")
+    public List<ManagerDTO> getAllManagers() {
+        return usuarioService.getAllManagers();
+    }
+
+    @Operation(summary = "Actualizar las casas de un manager")
+    @PutMapping("/managers")
+    public ResponseEntity<Void> actualizarCasasManager(@RequestBody ManagerCasaUpdateDTO dto) {
+        usuarioService.actualizarCasasDeManager(dto);
+        return ResponseEntity.noContent().build();
+    }
+
 
     @Operation(summary = "Obtener usuario por ID")
     @GetMapping("{id}")
@@ -99,6 +146,5 @@ public class UsuarioController {
         usuarioService.deleteUsuario(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 
 }

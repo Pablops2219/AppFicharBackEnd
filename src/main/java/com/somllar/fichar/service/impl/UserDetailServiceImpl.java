@@ -1,8 +1,9 @@
 package com.somllar.fichar.service.impl;
 
 
-import com.somllar.fichar.persistance.entity.RolesEntity;
-import com.somllar.fichar.persistance.entity.UsuarioEntity;
+import com.somllar.fichar.persistance.entity.*;
+import com.somllar.fichar.persistance.repository.CasaRepository;
+import com.somllar.fichar.persistance.repository.ManagerCasaRepository;
 import com.somllar.fichar.persistance.repository.RolesRepository;
 import com.somllar.fichar.persistance.repository.UsuarioRepository;
 import com.somllar.fichar.security.controller.dto.AuthCreateUserRequest;
@@ -25,9 +26,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.somllar.fichar.persistance.entity.UsuarioEntity.generarUsername;
 
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
@@ -43,7 +47,11 @@ public class UserDetailServiceImpl implements UserDetailsService {
     @Autowired
     private RolesRepository rolesRepository;
     @Autowired
+    private CasaRepository casaRepository;
+    @Autowired
     private UsuarioServiceImpl usuarioService;
+    @Autowired
+    private ManagerCasaRepository managerCasaRepository;
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
@@ -97,22 +105,30 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
     }
 
-    public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest){
+    public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest, boolean registerAsUser){
         String firstName = authCreateUserRequest.firstName();
         String lastName = authCreateUserRequest.lastName();
         String password = authCreateUserRequest.password();
         String email = authCreateUserRequest.email();
-        List<String> roleRequest = authCreateUserRequest.rolesRequest().roleListName();
+        List<String> roleRequest = new ArrayList<>();
+        Set<RolesEntity> rolesEntitySet = new HashSet<>();
 
-        Set<RolesEntity> rolesEntitySet = rolesRepository.findByRoleEnumIn(roleRequest).stream().collect(Collectors.toSet());
-        if(rolesEntitySet.isEmpty()){
+        //Se crea con roles si se crea el usuario desde el endpoint api/usuarios post
+        if(!registerAsUser){
+            roleRequest = authCreateUserRequest.rolesRequest().roleListName();
+            rolesEntitySet = rolesRepository.findByRoleEnumIn(roleRequest).stream().collect(Collectors.toSet());
+        } else {
+            rolesEntitySet = new HashSet<>(rolesRepository.findByRoleEnumIn(List.of(RoleEnum.USER.name())));
+        }
+
+
+        if(rolesEntitySet.isEmpty() && !registerAsUser){
             throw new IllegalArgumentException("Los roles especificados no existen");
         }
 
         UsuarioEntity usuarioEntity = UsuarioEntity.builder().
                 firstName(firstName).
                 lastName(lastName).
-                username(usuarioService.generarUsername(firstName, lastName)).
                 email(email).
                 password(passwordEncoder.encode(password)).
                 roles(rolesEntitySet).
@@ -122,7 +138,22 @@ public class UserDetailServiceImpl implements UserDetailsService {
                 credentialNoExpired(true).
                 build();
 
+        usuarioEntity.setUsername(generarUsername(usuarioEntity));
+
         UsuarioEntity usuarioCreado = usuarioRepository.save(usuarioEntity);
+
+        if (roleRequest.contains("MANAGER") && authCreateUserRequest.casasManager() != null) {
+            for (Long casaId : authCreateUserRequest.casasManager()) {
+                CasaEntity casa = casaRepository.findById(casaId)
+                        .orElseThrow(() -> new RuntimeException("Casa no encontrada"));
+
+                ManagerCasaEntity managerCasa = ManagerCasaEntity.builder()
+                        .manager(usuarioCreado)
+                        .casa(casa)
+                        .build();
+                managerCasaRepository.save(managerCasa);
+            }
+        }
 
         List<GrantedAuthority> authorityList = new ArrayList<>();
 

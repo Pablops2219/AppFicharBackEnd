@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class JWTUtil {
-    @Value("${security.jwt.key.private}")
+    @Value("${spring.security.secret}")
     private String privateKey;
 
     @Value("${security.jwt.user.generator}")

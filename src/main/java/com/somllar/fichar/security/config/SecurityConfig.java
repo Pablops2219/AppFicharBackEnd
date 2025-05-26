@@ -5,6 +5,7 @@ import com.somllar.fichar.security.filter.JwtTokenValidator;
 import com.somllar.fichar.service.impl.UserDetailServiceImpl;
 import com.somllar.fichar.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,6 +23,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
@@ -34,12 +39,19 @@ public class SecurityConfig {
     @Autowired
     private JWTUtil jwtUtil;
 
+    @Autowired
+    @Value("${computer.local.ip}")
+    private String localIP;
+    @Autowired
+    @Value("${computer.public.ip}")
+    private String publicIP;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:4200"));
+                    config.setAllowedOrigins(List.of("http://localhost:4200", "http://" + localIP + ":4200", "http://" + publicIP + ":4200"));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                     config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
                     config.setAllowCredentials(true);
@@ -55,7 +67,7 @@ public class SecurityConfig {
                     // Control por roles
                     http.requestMatchers("/api/usuarios/**").hasAnyRole("ADMIN", "DEVELOPER");
                     http.requestMatchers("/api/fichajes/**").hasAnyRole("ADMIN", "DEVELOPER");
-                    http.requestMatchers("/api/casas/**").hasAnyRole("ADMIN", "DEVELOPER");
+                    http.requestMatchers("/api/casas/**").hasAnyRole("USER","MANAGER","ADMIN","DEVELOPER");
                     http.requestMatchers("/api/miusuario/**").authenticated();
                     http.requestMatchers(
                             "/auth/**",
@@ -71,22 +83,8 @@ public class SecurityConfig {
                     http.anyRequest().denyAll(); // Todo lo demás se bloquea
                 })
                 .addFilterBefore(new JwtTokenValidator(jwtUtil), BasicAuthenticationFilter.class)
-
                 .build();
     }
-
-//    Desactiva la seguridad para los endpoints
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        return httpSecurity
-//                .csrf(csrf -> csrf.disable())
-//                .httpBasic(Customizer.withDefaults())
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(http -> http.anyRequest().permitAll())
-//                .build();
-//    }
-
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -107,9 +105,5 @@ public class SecurityConfig {
     }
 
 
-//    Desactivar encriptacion de contraseñas
-//    public PasswordEncoder passwordEncoder(){
-//        return NoOpPasswordEncoder.getInstance();
-//    }
 
 }
