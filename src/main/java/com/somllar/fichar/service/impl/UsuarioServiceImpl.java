@@ -2,21 +2,26 @@ package com.somllar.fichar.service.impl;
 
 import com.somllar.fichar.dto.ManagerCasaUpdateDTO;
 import com.somllar.fichar.dto.ManagerDTO;
-import com.somllar.fichar.persistance.entity.CasaEntity;
-import com.somllar.fichar.persistance.entity.ManagerCasaEntity;
-import com.somllar.fichar.persistance.entity.RoleEnum;
-import com.somllar.fichar.persistance.entity.UsuarioEntity;
-import com.somllar.fichar.persistance.repository.CasaRepository;
-import com.somllar.fichar.persistance.repository.ManagerCasaRepository;
-import com.somllar.fichar.persistance.repository.RolesRepository;
-import com.somllar.fichar.persistance.repository.UsuarioRepository;
+import com.somllar.fichar.persistance.entity.*;
+import com.somllar.fichar.persistance.repository.*;
+import com.somllar.fichar.security.controller.dto.AuthImportUsuarioSinContra;
+import com.somllar.fichar.security.controller.dto.AuthLoginRequest;
+import com.somllar.fichar.security.controller.dto.AuthResponse;
 import com.somllar.fichar.service.UsuarioService;
+import com.somllar.fichar.util.JWTUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +32,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private JWTUtil jwtUtil;
 
     @Autowired
     private ManagerCasaRepository managerCasaRepository;
@@ -34,6 +41,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     private RolesRepository rolesRepository;
     @Autowired
     private CasaRepository casaRepository;
+    @Autowired
+    private UsuarioSinContraRepository usuarioSinContraRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -137,11 +146,68 @@ public class UsuarioServiceImpl implements UsuarioService {
         managerCasaRepository.saveAll(nuevasRelaciones);
     }
 
-
-
     @Override
     public void deleteUsuario(Long id) {
 
         usuarioRepository.deleteById(id);
+    }
+
+    public void importarUsuarios(List<AuthImportUsuarioSinContra> usuariosDTO) {
+        for (AuthImportUsuarioSinContra dto : usuariosDTO) {
+            if (!usuarioSinContraRepository.existsByEmail(dto.getEmail()) &&
+                    !usuarioRepository.existsByEmail(dto.getEmail())) {
+
+                UsuarioSinContraEntity pendiente = UsuarioSinContraEntity.builder()
+                        .nombre(dto.getNombre())
+                        .apellidos(dto.getApellidos())
+                        .email(dto.getEmail())
+                        .build();
+
+                usuarioSinContraRepository.save(pendiente);
+            }
+        }
+    }
+
+    public AuthResponse confirmarUsuario(AuthLoginRequest authLoginRequest) {
+
+
+        String email = authLoginRequest.email();
+        String password = authLoginRequest.password();
+
+        UsuarioSinContraEntity pendiente = usuarioSinContraRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario sin contra no encontrado"));
+
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setFirstName(pendiente.getNombre());
+        usuario.setLastName(pendiente.getApellidos());
+        usuario.setEmail(pendiente.getEmail());
+        usuario.setPassword(passwordEncoder.encode(password));
+        usuario.setEnabled(true);
+        usuario.setAccountNoExpired(true);
+        usuario.setAccountNoLocked(true);
+        usuario.setCredentialNoExpired(true);
+        usuario.setRoles(new HashSet<>(rolesRepository.findByRoleEnumIn(List.of(RoleEnum.USER.name()))));
+
+        UsuarioEntity usuarioCreado = this.saveUsuario(usuario);
+        usuarioSinContraRepository.delete(pendiente);
+
+        List<GrantedAuthority> authorityList = new ArrayList<>();
+
+        usuarioCreado.getRoles().forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getRoleEnum().name()))));
+
+        usuarioCreado.getRoles().stream().flatMap(role -> role.getPermissionList().stream()).forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getName())));
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(usuarioCreado.getEmail(), usuarioCreado.getPassword(), authorityList);
+        String accessToken = jwtUtil.createToken(authentication);
+
+        AuthResponse authResponse = new AuthResponse(usuarioCreado.getUsername(), "Usuario creaod correctamente", accessToken, true);
+        return authResponse;
+    }
+
+
+    @Override
+    public List<UsuarioSinContraEntity> getAllUsuariosSinContrasena() {
+        return usuarioSinContraRepository.findAll();
     }
 }

@@ -105,6 +105,11 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
     }
 
+    public AuthResponse createUserNoPassword(String email){
+
+        return null;
+    }
+
     public AuthResponse createUser(AuthCreateUserRequest authCreateUserRequest, boolean registerAsUser){
         String firstName = authCreateUserRequest.firstName();
         String lastName = authCreateUserRequest.lastName();

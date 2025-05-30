@@ -5,8 +5,10 @@ import com.somllar.fichar.dto.ManagerDTO;
 import com.somllar.fichar.dto.UsuarioPatchDTO;
 import com.somllar.fichar.persistance.entity.RolesEntity;
 import com.somllar.fichar.persistance.entity.UsuarioEntity;
+import com.somllar.fichar.persistance.entity.UsuarioSinContraEntity;
 import com.somllar.fichar.persistance.repository.RolesRepository;
 import com.somllar.fichar.security.controller.dto.AuthCreateUserRequest;
+import com.somllar.fichar.security.controller.dto.AuthImportUsuarioSinContra;
 import com.somllar.fichar.security.controller.dto.AuthResponse;
 import com.somllar.fichar.service.UsuarioService;
 import com.somllar.fichar.service.impl.UserDetailServiceImpl;
@@ -147,4 +149,16 @@ public class UsuarioController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+    @PostMapping("/importar")
+    @PreAuthorize("hasAnyRole('ADMIN','DEVELOPER')")
+    public ResponseEntity<Void> importarUsuarios(@RequestBody List<AuthImportUsuarioSinContra> usuarios) {
+        usuarioService.importarUsuarios(usuarios);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/sin-contrasena")
+    public List<UsuarioSinContraEntity> getUsuariosSinContrasena() {
+        return usuarioService.getAllUsuariosSinContrasena();
+    }
 }
